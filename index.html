@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Login & Signup</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding-top: 50px; }
+        input { margin: 5px; padding: 8px; width: 200px; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+
+<h2>Login</h2>
+<input type="text" id="login-username" placeholder="Username"><br>
+<input type="password" id="login-password" placeholder="Password"><br>
+<button onclick="login()">Login</button>
+
+<h2>Signup</h2>
+<input type="text" id="signup-username" placeholder="Username"><br>
+<input type="text" id="signup-category" placeholder="Category (A or B)"><br>
+<input type="password" id="signup-password" placeholder="Password"><br>
+<button onclick="signup()">Signup</button>
+
+<h2>Reset Password</h2>
+<input type="text" id="reset-username" placeholder="Username"><br>
+<input type="password" id="reset-new-password" placeholder="New Password"><br>
+<button onclick="resetPassword()">Reset Password</button>
+
+<script>
+const scriptURL = 'https://script.google.com/macros/s/AKfycbykcoKryPg37Bm8ZLyn_z3qGDsysBnlrjuNpqK2gRIrPdMpoCe_Y-wtvP3e3-68N0j7/exec';
+
+async function sendRequest(payload) {
+    try {
+        const response = await fetch(scriptURL, {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        const text = await response.text();
+        alert(text);
+        return text;
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        alert("Error: " + error.message);
+    }
+}
+
+function signup() {
+    const username = document.getElementById("signup-username").value;
+    const category = document.getElementById("signup-category").value;
+    const password = document.getElementById("signup-password").value;
+
+    if (!username || !category || !password) return alert("Please fill all fields");
+
+    sendRequest({ action: "signup", username, category, password });
+}
+
+function login() {
+    const username = document.getElementById("login-username").value;
+    const password = document.getElementById("login-password").value;
+
+    if (!username || !password) return alert("Enter username and password");
+
+    sendRequest({ action: "login", username, password }).then((response) => {
+        if (response.includes("Login successful")) {
+            const category = response.split(",")[1];
+            if (category === "A") alert("Welcome A User! Showing Button 1");
+            else if (category === "B") alert("Welcome B User! Showing Buttons 1 & 2");
+        }
+    });
+}
+
+function resetPassword() {
+    const username = document.getElementById("reset-username").value;
+    const newPassword = document.getElementById("reset-new-password").value;
+
+    if (!username || !newPassword) return alert("Fill both fields");
+
+    sendRequest({ action: "resetPassword", username, newPassword });
+}
+</script>
+
+</body>
+</html>
